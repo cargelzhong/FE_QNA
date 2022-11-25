@@ -53,7 +53,7 @@
 const a = []
 
 - Array.isArray(a); // true
-- Object.prototype.toString.call(a) === '[object Array]'; //true
+- Object.prototype.toString.call(a) === '[object Array]'; // true
 
 ## 线程 进程
 
@@ -99,8 +99,56 @@ Css 压缩，避免使用通配符规则，尽量使用类选择器代替标签�
 
 闭包是指有权访问另一个函数作用域中变量的函数，创建闭包的最常见的方式就是在一个函数内创建另一个函数，通过另一个函数访问这个函数的局部变量,利用闭包可以突破作用链域，将函数内部的变量和方法传递到外部。闭包的特性： 1.函数内再嵌套函数 2.内部函数可以引用外层的参数和变量 3.参数和变量不会被垃圾回收机制回收
 
+## 闭包的作用
+
+最大用处有两个，一个是可以读取函数内部的变量，另一个就是让这些变量的值始终保持在内存中，不会在函数调用后被自动清除。
+
 ## 移动端适配
 
 1、使用合理的 flex 布局 + 媒体查询做微调；
 2、sass 函数 计算 1920 * 1080 下对应比例的 vw vh；$px / 1920 *100vh
 3、<meta name="viewport" content="width=1920px, initial-scale=0.21" > （400/1920 = 0.21）
+js 是单线程语言，宿主环境的多线程使它具有了异步的属性，浏览器才是真正实现异步的。
+
+## 事件循环机制
+
+同步的从上到下按顺序打印，异步的再执行。js 不断从任务队列里提取任务到主线程执行，事件队列也就是事件循环
+异步宏任务先执行 然后在执行异步微任务。
+
+```js script
+setTimeout(() => {
+  console.log(0);
+});
+new Promise((resolve) => {
+  console.log(1);
+  setTimeout(() => {
+    resolve();
+    var p1 = new Promise((n1, n2) => {
+      n1(20);
+    });
+    p1.then(() => console.log(2));
+    console.log(3);
+    setTimeout(() => {
+      console.log(9);
+    }, 0);
+  });
+  new Promise((n1, n2) => {
+    n1(20);
+  }).then(() => console.log(4));
+}).then(() => {
+  console.log(5);
+  var p2 = new Promise((n1, n2) => {
+    n1(20);
+  });
+  p2.then(() => console.log(8));
+  setTimeout(() => console.log(6));
+});
+console.log(7);
+
+// 1，7，4，0，3，5，2，8，9，6
+```
+
+## Node 与浏览器的 Event Loop 差异
+
+浏览器环境下，microtask 的任务队列是每个 macrotask 执行完之后执行。而在 Node.js 中，microtask 会在事件循环的各个阶段之间执行，也就是一个阶段执行完毕，就会去执行 microtask 队列的任务。
+![avatar](https://gitee.com/HenrikChung/imgStore/raw/master/node&browser.png)
